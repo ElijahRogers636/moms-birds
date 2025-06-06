@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React, { useEffect, useState } from "react";
+import { auth } from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
-function App() {
+import Login from "./components/Login";
+import BirdList from "./components/BirdList";
+import Sightings from "./components/Sightings";
+
+export default function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
+  }, []);
+
+  if (!user) return <Login />;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
+      <header style={{ marginBottom: 20 }}>
+        <h1>Bird Tracker</h1>
+        <button onClick={() => signOut(auth)}>Log out</button>
       </header>
+      <BirdList user={user} />
+      <Sightings user={user} />
     </div>
   );
 }
 
-export default App;
